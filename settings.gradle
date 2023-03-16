@@ -12,6 +12,6 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
-rootProject.name = "Widget_SDK_Android"
+rootProject.name = "Widget_Kotlin_SDK"
 include ':app'
-include ':WidgetSdk'
+include ':WidgetSDK'

@@ -1,4 +1,4 @@
-package com.example.widget_sdk_android
+package ai.jelou.widget_kotlin_sdk
 
 import org.junit.Test
 
