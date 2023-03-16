@@ -1,16 +1,22 @@
 plugins {
     id 'com.android.library'
-    id 'kotlin-android'
+    id 'maven-publish'
 }
 
 android {
+    namespace 'ai.jelou.widget'
     compileSdk 33
 
+    publishing {
+        singleVariant('release') {
+            withSourcesJar()
+            withJavadocJar()
+        }
+    }
+
     defaultConfig {
-        minSdk 21
+        minSdk 24
         targetSdk 33
-        versionCode 1
-        versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
@@ -26,17 +32,62 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
-    kotlinOptions {
-        jvmTarget = '1.8'
-    }
 }
 
 dependencies {
 
-    implementation 'androidx.core:core-ktx:1.9.0'
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'com.google.android.material:material:1.8.0'
-    testImplementation 'junit:junit:4.+'
+    testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
 }
+
+afterEvaluate {
+    publishing {
+        publications {
+            maven(MavenPublication) {
+                from components.release
+
+                groupId = 'com.github.JelouLatam'
+                artifactId = 'WidgetSDK'
+                version = '0.0.10-dev'
+
+                pom {
+                    name = 'Widget'
+                    description = 'A SDK for getting and instace of Widget so you can process your chat messages through the widget instance'
+                    url = 'http://www.github.com/JelouLatam/Widget-SDK-Android'
+//                    properties = [
+//                            myProp: "value",
+//                            "prop.with.dots": "anotherValue"
+//                    ]
+                    licenses {
+                        license {
+                            name = 'The Apache License, Version 2.0'
+                            url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                        }
+                    }
+                    developers {
+                        developer {
+                            id = 'luibasantes'
+                            name = 'Luigi Basantes'
+                            email = 'luigi@jelou.ai'
+                        }
+                    }
+//                    scm {
+//                        connection = 'scm:git:git://example.com/my-library.git'
+//                        developerConnection = 'scm:git:ssh://example.com/my-library.git'
+//                        url = 'http://example.com/my-library/'
+//                    }
+                }
+            }
+        }
+    }
+}
+
+//task comps {
+//    afterEvaluate {
+//        println("Components: " + components*.name)
+//        println("Components: " + components.release)
+//    }
+//}
