@@ -13,5 +13,5 @@ dependencyResolutionManagement {
     }
 }
 rootProject.name = "Widget_Kotlin_SDK"
-include ':app'
+//include ':app'
 include ':WidgetSDK'
