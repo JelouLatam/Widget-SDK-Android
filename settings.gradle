@@ -1,11 +1,17 @@
+pluginManagement {
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
         google()
         mavenCentral()
-        jcenter() // Warning: this repository is going to shut down soon
     }
 }
-rootProject.name = "Widget_Kotlin_SDK"
+rootProject.name = "Widget_SDK_Android"
 include ':app'
-include ':widget-sdk'
+include ':WidgetSdk'
