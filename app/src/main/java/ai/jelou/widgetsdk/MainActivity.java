@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
 
+import ai.jelou.widget.WidgetEventListener;
 import ai.jelou.widget.WidgetService;
 
 public class MainActivity extends AppCompatActivity {
@@ -19,5 +20,16 @@ public class MainActivity extends AppCompatActivity {
         widgetService.Toast(MainActivity.this, "Hwllwlw ");
 
         widgetService.connect(MainActivity.this);
+        try{
+            widgetService.on("message", new WidgetEventListener() {
+                @Override
+                public void run(String data) {
+                    // Here Goes Your Code
+                    System.out.println("New Message Data:"+ data);
+                }
+            });
+        }catch(Exception e){
+            System.out.println("Error on attaching event"+e.toString());
+        }
     }
 }
