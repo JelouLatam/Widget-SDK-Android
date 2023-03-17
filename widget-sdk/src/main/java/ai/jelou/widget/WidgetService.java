@@ -1,10 +1,15 @@
 package ai.jelou.widget;
 
 import static ai.jelou.widget.Constant.API_WIDGET_INIT;
-import static ai.jelou.widget.Constant.WEBHOOK_SITE_TEST;
+import static ai.jelou.widget.Constant.EVENT_MESSAGE;
+import static ai.jelou.widget.Constant.PUSHER_EVENT_ROOM_MESSAGE;
+
 
 import android.content.Context;
+import android.os.Handler;
 import android.widget.Toast;
+
+import com.pusher.client.Pusher;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
@@ -13,6 +18,10 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.pusher.client.PusherOptions;
+import com.pusher.client.channel.Channel;
+import com.pusher.client.channel.PusherEvent;
+import com.pusher.client.channel.SubscriptionEventListener;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -35,6 +44,8 @@ public class WidgetService {
     private JSONObject User;
     private JSONObject Widget;
     private JSONObject SocketCredentials;
+
+    private Channel channel;
 
     // Default Constructor
     public WidgetService(String apiKey) {      //constructor 1
@@ -68,16 +79,48 @@ public class WidgetService {
     }
 
     public void connect(Context context){
-        System.out.println("Launching Connect");
         try{
             callInitWidget(context);
         } catch (Exception e){
-            System.out.println("Error" + e.toString());
+            System.out.println("Error connecting" + e.toString());
         }
     }
 
-    public void on(String event){
-        System.out.println("Attached function to `event`.");
+    public void on(String event, WidgetEventListener eventListener) throws Exception{
+        this.on(event, eventListener,1);
+    }
+    public void on(String event, WidgetEventListener eventListener, int retries) throws Exception{
+        if (this.channel == null && retries > 0) {
+            System.out.println("Failed To Bind WidgetEventListener, connection not yet made");
+            WidgetService instance = this;
+            Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        instance.on(event, eventListener, retries - 1);
+                    }catch(Exception e){
+                        System.out.println("Failed on retry to Bind WidgetEventListener");
+                    }
+                }
+            }, 2000);
+            return;
+        }
+
+
+
+        switch (event){
+            case EVENT_MESSAGE:
+                this.channel.bind(PUSHER_EVENT_ROOM_MESSAGE, new SubscriptionEventListener() {
+                    @Override
+                    public void onEvent(PusherEvent event) {
+                        eventListener.run(event.getData());
+                    }
+                });
+                break;
+            default:
+                throw new Exception("Event '" +event + "' does not exists." );
+        }
     }
 
     private void callInitWidget(Context context) throws Exception {
@@ -154,8 +197,14 @@ public class WidgetService {
             System.out.println("Error Parsing Connect Response:" + e.toString());
         }
     }
-    private void connectToSocket(){
-        System.out.println("Trying to connect to Socket");
+    private void connectToSocket() throws JSONException {
+        PusherOptions options = new PusherOptions();
+        options.setCluster(this.SocketCredentials.getString("cluster"));
+
+        Pusher pusher = new Pusher(this.SocketCredentials.getString("key"), options);
+        pusher.connect();
+        String channelName = "socket-" + this.User.getString("socketId");
+        this.channel = pusher.subscribe(channelName);
     }
 
     @Override
